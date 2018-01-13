@@ -24,10 +24,11 @@ class TemperatureSocketHandler(tornado.websocket.WebSocketHandler):
         self.sending = True
     def on_message(self, message):
         num = 0
-        while(self.sending and num < 10):
+        while(self.sending and num < 10):            
             num = num + 1
             temp = self.sense.get_temperature()
             self.write_message(str(temp))
+            print("temperature: " + str(temp))
             time.sleep(2)
     def on_close(self):
         self.sending = False
