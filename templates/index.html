@@ -6,7 +6,7 @@ CTYPE html>
                 var ws;
                  
                          function onLoad() {
-                                     ws = new WebSocket("ws://172.16.42.10:8080/websocket");
+                                     ws = new WebSocket("ws://172.16.42.10:8080/temp");
                                       
                                                   ws.onmessage = function(e) {
                                                                  alert(e.data);
