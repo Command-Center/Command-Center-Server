@@ -19,18 +19,37 @@ class IndexPageHandler(tornado.web.RequestHandler):
        self.render("index.html")
 class TemperatureSocketHandler(tornado.websocket.WebSocketHandler):
     def open(self):
+        print("Temperature socket opened")
         self.sense = SenseHat()
         self.sense.clear()
-        self.sending = True
+        self.sending = False
     def on_message(self, message):
         num = 0
-        while(self.sending and num < 10):            
+        message = message.strip(' \t\n\r')
+        mes = [elem.encode("hex") for elem in message]
+        i = 0
+        for idx, x in enumerate(reversed(mes)):
+            if x != "00":
+                i = idx
+                break
+        mes = mes[:(len(mes)-i)]
+        print(len(mes))
+        print(mes[8])
+        for x in mes:
+             print(x)
+        if(message == "START"):
+            print("Inside start if")
+            self.sending = True
+        if(message == "STOP"):
+            self.sending = False
+        while(self.sending):            
             num = num + 1
             temp = self.sense.get_temperature()
             self.write_message(str(temp))
             print("temperature: " + str(temp))
-            time.sleep(2)
+            time.sleep(0.5)
     def on_close(self):
+        print("temperature socket closed")
         self.sending = False
 class HumiditySocketHandler(tornado.websocket.WebSocketHandler):
     def open(self):
