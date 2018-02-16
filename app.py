@@ -26,6 +26,7 @@ class TemperatureSocketHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         num = 0
         message = message.strip(' \t\n\r')
+        print(message)
         mes = [elem.encode("hex") for elem in message]
         i = 0
         for idx, x in enumerate(reversed(mes)):
@@ -33,8 +34,6 @@ class TemperatureSocketHandler(tornado.websocket.WebSocketHandler):
                 i = idx
                 break
         mes = mes[:(len(mes)-i)]
-        print(len(mes))
-        print(mes[8])
         for x in mes:
              print(x)
         if(message == "START"):
