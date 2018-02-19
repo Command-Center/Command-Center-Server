@@ -2,6 +2,7 @@ import tornado.web
 import tornado.websocket
 import tornado.httpserver
 import tornado.ioloop
+from tornado import gen
 
 from sense_hat import SenseHat
 import time
@@ -18,6 +19,14 @@ class IndexPageHandler(tornado.web.RequestHandler):
     def get(self):
        self.render("index.html")
 class TemperatureSocketHandler(tornado.websocket.WebSocketHandler):
+    @gen.coroutine
+    def async_func(self):
+        num = 0
+        while(self.sending):
+            num = num + 1
+            temp = self.sense.get_temperature()
+            yield self.write_message(str(temp))
+            gen.sleep(1)
     def open(self):
         print("Temperature socket opened")
         self.sense = SenseHat()
@@ -26,30 +35,16 @@ class TemperatureSocketHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         num = 0
         message = message.strip(' \t\n\r')
-        print(message)
-        mes = [elem.encode("hex") for elem in message]
-        i = 0
-        for idx, x in enumerate(reversed(mes)):
-            if x != "00":
-                i = idx
-                break
-        mes = mes[:(len(mes)-i)]
-        for x in mes:
-             print(x)
         if(message == "START"):
-            print("Inside start if")
             self.sending = True
         if(message == "STOP"):
             self.sending = False
-        while(self.sending):            
-            num = num + 1
-            temp = self.sense.get_temperature()
-            self.write_message(str(temp))
-            print("temperature: " + str(temp))
-            time.sleep(0.5)
+        tornado.ioloop.IOLoop.current().spawn_callback(self.async_func(self))
+
     def on_close(self):
         print("temperature socket closed")
         self.sending = False
+
 class HumiditySocketHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         self.sense = SenseHat()
@@ -134,8 +129,8 @@ class Application(tornado.web.Application):
         tornado.web.Application.__init__(self, handlers, **settings)
 
 if __name__ == '__main__':
+    print("Server running...")
     ws_app = Application()
     server = tornado.httpserver.HTTPServer(ws_app)
     server.listen(8080)
     tornado.ioloop.IOLoop.instance().start()
-
