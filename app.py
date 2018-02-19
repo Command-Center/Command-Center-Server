@@ -27,9 +27,7 @@ class TemperatureSocketHandler(tornado.websocket.WebSocketHandler):
             temp = self.sense.get_temperature()
             yield self.write_message(str(temp))
             print(str(temp))
-            yield gen.sleep(2)
-    def cb(self):
-        print("done")
+            yield gen.sleep(5)
     def open(self):
         print("Temperature socket opened")
         self.sense = SenseHat()
@@ -40,7 +38,7 @@ class TemperatureSocketHandler(tornado.websocket.WebSocketHandler):
         message = message.strip(' \t\n\r')
         if(message == "START"):
             self.sending = True
-            tornado.ioloop.IOLoop.current().spawn_callback(self.async_func())
+            tornado.ioloop.IOLoop.current().add_future(self.async_func(), lambda f: self.close())
         if(message == "STOP"):
             self.sending = False
 
