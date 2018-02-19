@@ -21,19 +21,19 @@ class IndexPageHandler(tornado.web.RequestHandler):
 class TemperatureSocketHandler(tornado.websocket.WebSocketHandler):
     @gen.coroutine
     def async_func(self):
-        num = 0
+        print("ASYNC FUNC CALLED")
         while(self.sending):
-            num = num + 1
             temp = self.sense.get_temperature()
             yield self.write_message(str(temp))
             print(str(temp))
-            yield gen.sleep(5)
+            yield gen.sleep(2)
     def open(self):
         print("Temperature socket opened")
         self.sense = SenseHat()
         self.sense.clear()
         self.sending = False
     def on_message(self, message):
+        print("ON_MESSAGE: TEMP")
         num = 0
         message = message.strip(' \t\n\r')
         if(message == "START"):
@@ -41,11 +41,10 @@ class TemperatureSocketHandler(tornado.websocket.WebSocketHandler):
             tornado.ioloop.IOLoop.current().add_future(self.async_func(), lambda f: self.close())
         if(message == "STOP"):
             self.sending = False
-
     def on_close(self):
         print("temperature socket closed")
         self.sending = False
-
+'''
 class HumiditySocketHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         self.sense = SenseHat()
@@ -112,16 +111,17 @@ class AccelerationSocketHandler(tornado.websocket.WebSocketHandler):
             time.sleep(0.1)
     def on_close(self):
         self.sending = False
+'''
 class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
             (r'/', IndexPageHandler),
             (r'/websocket', WebSocketHandler),
             (r'/temp', TemperatureSocketHandler),
-            (r'/pressure', PressureSocketHandler),
-            (r'/humidity', HumiditySocketHandler),
-            (r'/orientation', OrientationSocketHandler),
-            (r'/acceleration', AccelerationSocketHandler)
+            #(r'/pressure', PressureSocketHandler),
+            #(r'/humidity', HumiditySocketHandler),
+            #(r'/orientation', OrientationSocketHandler),
+            #(r'/acceleration', AccelerationSocketHandler)
         ]
 
         settings = {
