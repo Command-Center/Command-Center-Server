@@ -20,7 +20,7 @@ class IndexPageHandler(tornado.web.RequestHandler):
        self.render("index.html")
 class TemperatureSocketHandler(tornado.websocket.WebSocketHandler):
     @gen.coroutine
-    def async_func(self):
+    def async_write(self):
         print("ASYNC FUNC CALLED")
         while(self.sending):
             temp = self.sense.get_temperature()
@@ -34,94 +34,125 @@ class TemperatureSocketHandler(tornado.websocket.WebSocketHandler):
         self.sending = False
     def on_message(self, message):
         print("ON_MESSAGE: TEMP")
-        num = 0
-        message = message.strip(' \t\n\r')
         if(message == "START"):
             self.sending = True
-            tornado.ioloop.IOLoop.current().add_future(self.async_func(), lambda f: self.close())
+            tornado.ioloop.IOLoop.current().add_future(self.async_write(), lambda f: self.close())
         if(message == "STOP"):
             self.sending = False
     def on_close(self):
         print("temperature socket closed")
         self.sending = False
-'''
 class HumiditySocketHandler(tornado.websocket.WebSocketHandler):
+    @gen.coroutine
+    def async_write(self):
+        print("HUMIDITY ASYNC FUNC CALLED")
+        while(self.sending):
+            humidity = self.sense.get_humidity()
+            yield self.write_message(str(humidity))
+            print(str(humidity))
+            yield gen.sleep(2)
     def open(self):
+        print("Humidity socket opened")
         self.sense = SenseHat()
         self.sense.clear()
-        self.sending = True
+        self.sending = False
     def on_message(self, message):
-        num = 0
-        while(self.sending and num < 10):
-            num = num + 1
-            humidity = self.sense.get_humidity()
-            self.write_message(str(humidity))
-            time.sleep(2)
+        print("ON_MESSAGE: HUM")
+        if(message == "START"):
+            self.sending = True
+            tornado.ioloop.IOLoop.current().add_future(self.async_write(), lambda f: self.close())
+        if(message == "STOP"):
+            self.sending = False
     def on_close(self):
+        print("Humidity" socket closed")
         self.sending = False
 class PressureSocketHandler(tornado.websocket.WebSocketHandler):
+    @gen.coroutine
+    def async_write(self):
+        print("PRESSURE ASYNC FUNC CALLED")
+        while(self.sending):
+            pressure = self.sense.get_pressure()
+            yield self.write_message(str(pressure))
+            print(str(pressure))
+            yield gen.sleep(2)
     def open(self):
+        print("Pressure socket opened")
         self.sense = SenseHat()
         self.sense.clear()
-        self.sending = True
+        self.sending = False
     def on_message(self, message):
-        num = 0
-        while(self.sending and num < 10):
-            num = num + 1
-            pressure = self.sense.get_pressure()
-            self.write_message(str(pressure))
-            time.sleep(2)
+        print("ON_MESSAGE: PRESSURE")
+        if(message == "START"):
+            self.sending = True
+            tornado.ioloop.IOLoop.current().add_future(self.async_write(), lambda f: self.close())
+        if(message == "STOP"):
+            self.sending = False
     def on_close(self):
+        print("Pressure socket closed")
         self.sending = False
 class OrientationSocketHandler(tornado.websocket.WebSocketHandler):
-    def open(self):
-        self.sense = SenseHat()
-        self.sense.clear()
-        self.sending = True
-    def on_message(self, message):
-        num = 0
-        while(self.sending and num < 10):
-            num = num + 1
+    @gen.coroutine
+    def async_write(self):
+        print("ORIENTATION ASYNC FUNC CALLED")
+        while(self.sending):
             orientation = self.sense.get_orientation()
             pitch = str(orientation["pitch"])
             roll = str(orientation["roll"])
             yaw = str(orientation["yaw"])
 
             orientations = pitch + " " + roll + " " + yaw
-            self.write_message(orientations)
-            time.sleep(0.1)
-    def on_close(self):
-        self.sending = False
-class AccelerationSocketHandler(tornado.websocket.WebSocketHandler):
+            yield self.write_message(orientations)
+            yield gen.sleep(2)
     def open(self):
+        print("Orientation socket opened")
         self.sense = SenseHat()
         self.sense.clear()
         self.sending = True
     def on_message(self, message):
-        num = 0
-        while(self.sending and num < 10):
-            num = num + 1
+        print("ON_MESSAGE: ORIENTATION")
+        if(message == "START"):
+            self.sending = True
+            tornado.ioloop.IOLoop.current().add_future(self.async_write(), lambda f: self.close())
+        if(message == "STOP"):
+            self.sending = False
+    def on_close(self):
+        self.sending = False
+class AccelerationSocketHandler(tornado.websocket.WebSocketHandler):
+    @gen.coroutine
+    def async_write(self):
+        print("ACCELERATION ASYNC FUNC CALLED")
+        while(self.sending):
             acceleration = sense.get_accelerometer_raw()
             x = str(acceleration['x'])
             y = str(acceleration['y'])
             z = str(acceleration['z'])
 
             accelerations = x + " " + y + " " + z
-            self.write_message(accelerations)
-            time.sleep(0.1)
+            yield self.write_message(accelerations)
+            yield gen.sleep(2)
+    def open(self):
+        self.sense = SenseHat()
+        self.sense.clear()
+        self.sending = True
+    def on_message(self, message):
+        print("ON_MESSAGE: ACCELERATION")
+        if(message == "START"):
+            self.sending = True
+            tornado.ioloop.IOLoop.current().add_future(self.async_write(), lambda f: self.close())
+        if(message == "STOP"):
+            self.sending = False
     def on_close(self):
         self.sending = False
-'''
 class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
             (r'/', IndexPageHandler),
             (r'/websocket', WebSocketHandler),
             (r'/temp', TemperatureSocketHandler),
-            #(r'/pressure', PressureSocketHandler),
-            #(r'/humidity', HumiditySocketHandler),
-            #(r'/orientation', OrientationSocketHandler),
-            #(r'/acceleration', AccelerationSocketHandler)
+            (r'/pressure', PressureSocketHandler),
+            (r'/humidity', HumiditySocketHandler),
+            (r'/orientation', OrientationSocketHandler),
+            (r'/acceleration', AccelerationSocketHandler)
         ]
 
         settings = {
