@@ -19,13 +19,15 @@ class IndexPageHandler(tornado.web.RequestHandler):
     def get(self):
        self.render("index.html")
 class TemperatureSocketHandler(tornado.websocket.WebSocketHandler):
+    @gen.coroutine
     def async_func(self):
         num = 0
         while(self.sending):
             num = num + 1
             temp = self.sense.get_temperature()
-            self.write_message(str(temp))
-            time.sleep(2)
+            yield self.write_message(str(temp))
+            print(str(temp))
+            yield gen.sleep(2)
     def cb(self):
         print("done")
     def open(self):
@@ -38,10 +40,9 @@ class TemperatureSocketHandler(tornado.websocket.WebSocketHandler):
         message = message.strip(' \t\n\r')
         if(message == "START"):
             self.sending = True
-
+            tornado.ioloop.IOLoop.current().spawn_callback(self.async_func())
         if(message == "STOP"):
             self.sending = False
-        tornado.ioloop.IOLoop.current().spawn_callback(self.async_func())
 
     def on_close(self):
         print("temperature socket closed")
