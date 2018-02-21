@@ -28,7 +28,7 @@ class TemperatureSocketHandler(tornado.websocket.WebSocketHandler):
     def async_write(self):
         print("ASYNC FUNC CALLED")
         while(self.sending):
-            temp = self.sense.get_temperature()
+            temp = round(self.sense.get_temperature(), 1)
             yield self.write_message(str(temp))
             print(str(temp))
             yield gen.sleep(5)
@@ -53,7 +53,7 @@ class IRTemperatureSocketHandler(tornado.websocket.WebSocketHandler):
         print("ASYNC FUNC CALLED")
         while(self.sending):
             try:
-                temp = self.instrument.read_register(16, 1)
+                temp = round(self.instrument.read_register(16, 1), 1)
                 yield self.write_message(str(temp))
                 yield gen.sleep(5)
             except Exception:
@@ -79,7 +79,7 @@ class HumiditySocketHandler(tornado.websocket.WebSocketHandler):
     def async_write(self):
         print("HUMIDITY ASYNC FUNC CALLED")
         while(self.sending):
-            humidity = self.sense.get_humidity()
+            humidity = round(self.sense.get_humidity(), 1)
             yield self.write_message(str(humidity))
             print(str(humidity))
             yield gen.sleep(10)
@@ -103,7 +103,7 @@ class PressureSocketHandler(tornado.websocket.WebSocketHandler):
     def async_write(self):
         print("PRESSURE ASYNC FUNC CALLED")
         while(self.sending):
-            pressure = self.sense.get_pressure()
+            pressure = round(self.sense.get_pressure(), 1)
             yield self.write_message(str(pressure))
             print(str(pressure))
             yield gen.sleep(10)
@@ -128,13 +128,13 @@ class OrientationSocketHandler(tornado.websocket.WebSocketHandler):
         print("ORIENTATION ASYNC FUNC CALLED")
         while(self.sending):
             orientation = self.sense.get_orientation()
-            pitch = str(orientation["pitch"])
-            roll = str(orientation["roll"])
-            yaw = str(orientation["yaw"])
+            pitch = str(round(orientation["pitch"], 1))
+            roll = str(round(orientation["roll"], 1))
+            yaw = str(round(orientation["yaw"], 1))
 
             orientations = pitch + " " + roll + " " + yaw
             yield self.write_message(orientations)
-            yield gen.sleep(0.5)
+            yield gen.sleep(0.25)
     def open(self):
         print("Orientation socket opened")
         self.sense = SenseHat()
@@ -155,13 +155,13 @@ class AccelerationSocketHandler(tornado.websocket.WebSocketHandler):
         print("ACCELERATION ASYNC FUNC CALLED")
         while(self.sending):
             acceleration = self.sense.get_accelerometer_raw()
-            x = str(acceleration['x'])
-            y = str(acceleration['y'])
-            z = str(acceleration['z'])
+            x = str(round(acceleration['x'], 2))
+            y = str(round(acceleration['y'], 2))
+            z = str(round(acceleration['z'], 2))
 
             accelerations = x + " " + y + " " + z
             yield self.write_message(accelerations)
-            yield gen.sleep(0.5)
+            yield gen.sleep(0.25)
     def open(self):
         self.sense = SenseHat()
         self.sense.clear()
