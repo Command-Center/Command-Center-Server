@@ -7,6 +7,10 @@ from tornado import gen
 from sense_hat import SenseHat
 import time
 import minimalmodbus
+import gpsd
+import subprocess
+import json
+
 
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def open(self):
@@ -57,7 +61,7 @@ class IRTemperatureSocketHandler(tornado.websocket.WebSocketHandler):
                 pass
     def open(self):
         print("IRTemperature socket opened")
-        self.instrument = minimalmodbus.Instrument('/dev/ttyUSB0', 1)
+        self.instrument = minimalmodbus.Instrument('/dev/ttyUSB-IR1', 1)
         self.instrument.baudrate = 9600
         self.sending = False
     def on_message(self, message):
@@ -171,6 +175,47 @@ class AccelerationSocketHandler(tornado.websocket.WebSocketHandler):
             self.sending = False
     def on_close(self):
         self.sending = False
+class GPSSocketHandler(tornado.websocket.WebSocketHandler):
+    @gen.coroutine
+    def async_write(self):
+        print("ASYNC FUNC CALLED")
+        first_fix = False
+        while(self.sending):
+            try:
+                packet = gpsd.get_current()
+                yield self.write_message(JSONEncoder().encode(create_dict_from_response(packet)))
+                first_fix = True
+            except Exception as e:
+                print("GPS FEIL: " + str(e))
+            if first_fix:
+                yield gen.sleep(5)
+            else:
+                yield gen.sleep(1)
+    def open(self):
+        print("GPS socket opened")
+        gpsd.connect()
+        self.sending = False
+    def on_message(self, message):
+        print("ON_MESSAGE: TEMP")
+        if(message == "START"):
+            self.sending = True
+            tornado.ioloop.IOLoop.current().add_future(self.async_write(), lambda f: self.close())
+        if(message == "STOP"):
+            self.sending = False
+    def on_close(self):
+        print("GPS socket closed")
+        self.sending = False
+    def create_dict_from_response(packet):
+        #Exception her? if setninger på mode.
+        dict = {}
+        dict['lat'] = str(packet.lat)
+        dict['lon'] = str(packet.lon)
+        dict['hspeed'] = str(packet.hspeed)
+        if packet.mode >= 3:
+            dict['alt'] = str(packet.alt)
+            dict['climb'] = str(packet.climb)
+        return dict
+
 class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
@@ -181,7 +226,8 @@ class Application(tornado.web.Application):
             (r'/humidity', HumiditySocketHandler),
             (r'/orientation', OrientationSocketHandler),
             (r'/acceleration', AccelerationSocketHandler),
-            (r'/irtemp', IRTemperatureSocketHandler)
+            (r'/irtemp', IRTemperatureSocketHandler),
+            (/r'/gps', GPSSocketHandler)
         ]
 
         settings = {
@@ -190,8 +236,19 @@ class Application(tornado.web.Application):
         tornado.web.Application.__init__(self, handlers, **settings)
 
 if __name__ == '__main__':
+    start_gpsd()
     print("Server running...")
     ws_app = Application()
     server = tornado.httpserver.HTTPServer(ws_app)
     server.listen(8080)
     tornado.ioloop.IOLoop.instance().start()
+
+def start_gpsd():
+    killall = "sudo killall gpsd"
+    stop = "sudo systemctl stop gpsd.socket"
+    disable = "sudo systemctl disable gpsd.socket"
+    start = "sudo gpsd /dev/ttyUSB-GPS -F /var/run/gpsd.sock"
+    c = killall + "; " + stop + "; " + disable + "; " + start
+    process = subprocess.Popen(c, stdout=subprocess.PIPE, shell=True)
+    proc = process.communicate()
+
