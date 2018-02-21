@@ -227,7 +227,7 @@ class Application(tornado.web.Application):
             (r'/orientation', OrientationSocketHandler),
             (r'/acceleration', AccelerationSocketHandler),
             (r'/irtemp', IRTemperatureSocketHandler),
-            (/r'/gps', GPSSocketHandler)
+            (r'/gps', GPSSocketHandler)
         ]
 
         settings = {
@@ -243,7 +243,7 @@ def start_gpsd():
     c = killall + "; " + stop + "; " + disable + "; " + start
     process = subprocess.Popen(c, stdout=subprocess.PIPE, shell=True)
     proc = process.communicate()
-    
+
 if __name__ == '__main__':
     start_gpsd()
     print("Server running...")
