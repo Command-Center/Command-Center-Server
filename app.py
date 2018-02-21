@@ -235,14 +235,6 @@ class Application(tornado.web.Application):
             }
         tornado.web.Application.__init__(self, handlers, **settings)
 
-if __name__ == '__main__':
-    start_gpsd()
-    print("Server running...")
-    ws_app = Application()
-    server = tornado.httpserver.HTTPServer(ws_app)
-    server.listen(8080)
-    tornado.ioloop.IOLoop.instance().start()
-
 def start_gpsd():
     killall = "sudo killall gpsd"
     stop = "sudo systemctl stop gpsd.socket"
@@ -251,4 +243,14 @@ def start_gpsd():
     c = killall + "; " + stop + "; " + disable + "; " + start
     process = subprocess.Popen(c, stdout=subprocess.PIPE, shell=True)
     proc = process.communicate()
+    
+if __name__ == '__main__':
+    start_gpsd()
+    print("Server running...")
+    ws_app = Application()
+    server = tornado.httpserver.HTTPServer(ws_app)
+    server.listen(8080)
+    tornado.ioloop.IOLoop.instance().start()
+
+
 
