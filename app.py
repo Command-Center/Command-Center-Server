@@ -78,6 +78,36 @@ class IRTemperatureSocketHandler(tornado.websocket.WebSocketHandler):
     def on_close(self):
         print("IRTemperature socket closed")
         self.sending = False
+class IR2TemperatureSocketHandler(tornado.websocket.WebSocketHandler):
+    @gen.coroutine
+    def async_write(self):
+        print("ASYNC FUNC CALLED: IR2TEMP")
+        while(self.sending):
+            try:
+                self.instrument = minimalmodbus.Instrument('/dev/ttyUSB-IR2', 1)
+                self.instrument.serial.baudrate = 9600
+                temp = round(self.instrument.read_register(16, 1), 1)
+                yield self.write_message(str(temp))
+                yield gen.sleep(5)
+            except Exception as ex:
+                yield gen.sleep(1)
+                pass
+    def open(self):
+        print("IR2Temperature socket opened")
+        self.instrument = minimalmodbus.Instrument('/dev/ttyUSB-IR2', 1)
+        self.instrument.serial.baudrate = 9600
+        self.sending = True
+    def on_message(self, message):
+        print("ON_MESSAGE: IR2TEMP")
+        if(message == "START"):
+            self.instrument = minimalmodbus.Instrument('/dev/ttyUSB-IR2', 1)
+            self.instrument.serial.baudrate = 9600
+            tornado.ioloop.IOLoop.current().add_future(self.async_write(), lambda f: self.close())
+        if(message == "STOP"):
+            self.sending = False
+    def on_close(self):
+        print("IR2Temperature socket closed")
+        self.sending = False
 class HumiditySocketHandler(tornado.websocket.WebSocketHandler):
     @gen.coroutine
     def async_write(self):
@@ -229,6 +259,7 @@ class Application(tornado.web.Application):
             (r'/orientation', OrientationSocketHandler),
             (r'/acceleration', AccelerationSocketHandler),
             (r'/irtemp', IRTemperatureSocketHandler),
+            (r'/irtemp2', IR2TemperatureSocketHandler),
             (r'/gps', GPSSocketHandler)
         ]
 
