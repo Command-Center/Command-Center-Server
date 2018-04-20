@@ -11,7 +11,7 @@ import gpsd
 import subprocess
 import simplejson as json
 
-import TemperatureSocketHandler
+import temperatureSocketHandler as TemperatureSocketHandler
 
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def open(self):
@@ -265,8 +265,7 @@ class Application(tornado.web.Application):
         ]
 
         settings = {
-            'template_path': 'templates',
-            'handler_path': 'handlers'
+            'template_path': 'templates'
             }
         tornado.web.Application.__init__(self, handlers, **settings)
 
