@@ -1,0 +1,8 @@
+#!/bin/bash
+sudo systemctl stop gpsd.socket
+sudo systemctl disable gpsd.socket
+
+#To restart
+#
+# sudo systemctl enable gpsd.socket
+# sido systemctl start gpsd.socket

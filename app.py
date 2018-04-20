@@ -9,7 +9,7 @@ import time
 import minimalmodbus
 import gpsd
 import subprocess
-import json
+import simplejson as json
 
 
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
@@ -50,24 +50,28 @@ class TemperatureSocketHandler(tornado.websocket.WebSocketHandler):
 class IRTemperatureSocketHandler(tornado.websocket.WebSocketHandler):
     @gen.coroutine
     def async_write(self):
-        print("ASYNC FUNC CALLED")
+        print("ASYNC FUNC CALLED: IRTEMP")
         while(self.sending):
+            print("test")
             try:
+                self.instrument = minimalmodbus.Instrument('/dev/ttyUSB-IR1', 1)
+                self.instrument.serial.baudrate = 9600
                 temp = round(self.instrument.read_register(16, 1), 1)
                 yield self.write_message(str(temp))
                 yield gen.sleep(5)
-            except Exception:
-                yield gen.sleep(5)
+            except Exception as ex:
+                yield gen.sleep(1)
                 pass
     def open(self):
         print("IRTemperature socket opened")
         self.instrument = minimalmodbus.Instrument('/dev/ttyUSB-IR1', 1)
-        self.instrument.baudrate = 9600
-        self.sending = False
+        self.instrument.serial.baudrate = 9600
+        self.sending = True
     def on_message(self, message):
-        print("ON_MESSAGE: TEMP")
+        print("ON_MESSAGE: IRTEMP")
         if(message == "START"):
-            self.sending = True
+            self.instrument = minimalmodbus.Instrument('/dev/ttyUSB-IR1', 1)
+            self.instrument.serial.baudrate = 9600
             tornado.ioloop.IOLoop.current().add_future(self.async_write(), lambda f: self.close())
         if(message == "STOP"):
             self.sending = False
@@ -81,7 +85,6 @@ class HumiditySocketHandler(tornado.websocket.WebSocketHandler):
         while(self.sending):
             humidity = round(self.sense.get_humidity(), 1)
             yield self.write_message(str(humidity))
-            print(str(humidity))
             yield gen.sleep(10)
     def open(self):
         print("Humidity socket opened")
@@ -105,7 +108,6 @@ class PressureSocketHandler(tornado.websocket.WebSocketHandler):
         while(self.sending):
             pressure = round(self.sense.get_pressure(), 1)
             yield self.write_message(str(pressure))
-            print(str(pressure))
             yield gen.sleep(10)
     def open(self):
         print("Pressure socket opened")
@@ -128,13 +130,12 @@ class OrientationSocketHandler(tornado.websocket.WebSocketHandler):
         print("ORIENTATION ASYNC FUNC CALLED")
         while(self.sending):
             orientation = self.sense.get_orientation()
-            pitch = str(round(orientation["pitch"], 1))
-            roll = str(round(orientation["roll"], 1))
-            yaw = str(round(orientation["yaw"], 1))
-
+            pitch = str(round(orientation["pitch"], 0))
+            roll = str(round(orientation["roll"], 0))
+            yaw = str(round(orientation["yaw"], 0))
             orientations = pitch + " " + roll + " " + yaw
             yield self.write_message(orientations)
-            yield gen.sleep(0.25)
+            yield gen.sleep(0.01)
     def open(self):
         print("Orientation socket opened")
         self.sense = SenseHat()
@@ -155,13 +156,13 @@ class AccelerationSocketHandler(tornado.websocket.WebSocketHandler):
         print("ACCELERATION ASYNC FUNC CALLED")
         while(self.sending):
             acceleration = self.sense.get_accelerometer_raw()
-            x = str(round(acceleration['x'], 2))
-            y = str(round(acceleration['y'], 2))
-            z = str(round(acceleration['z'], 2))
+            x = str(round(acceleration['x'], 1))
+            y = str(round(acceleration['y'], 1))
+            z = str(round(acceleration['z'], 1))
 
             accelerations = x + " " + y + " " + z
             yield self.write_message(accelerations)
-            yield gen.sleep(0.25)
+            yield gen.sleep(0.01)
     def open(self):
         self.sense = SenseHat()
         self.sense.clear()
@@ -183,7 +184,7 @@ class GPSSocketHandler(tornado.websocket.WebSocketHandler):
         while(self.sending):
             try:
                 packet = gpsd.get_current()
-                yield self.write_message(JSONEncoder().encode(create_dict_from_response(packet)))
+                yield self.write_message(json.dumps(self.create_dict_from_response(packet)))
                 first_fix = True
             except Exception as e:
                 print("GPS FEIL: " + str(e))
@@ -205,9 +206,10 @@ class GPSSocketHandler(tornado.websocket.WebSocketHandler):
     def on_close(self):
         print("GPS socket closed")
         self.sending = False
-    def create_dict_from_response(packet):
+    def create_dict_from_response(self, packet):
         #Exception her? if setninger på mode.
         dict = {}
+        dict['mode'] = str(packet.mode)
         dict['lat'] = str(packet.lat)
         dict['lon'] = str(packet.lon)
         dict['hspeed'] = str(packet.hspeed)
