@@ -161,9 +161,9 @@ class OrientationSocketHandler(tornado.websocket.WebSocketHandler):
         print("ORIENTATION ASYNC FUNC CALLED")
         while(self.sending):
             orientation = self.sense.get_orientation()
-            pitch = str(round(orientation["pitch"], 0))
-            roll = str(round(orientation["roll"], 0))
-            yaw = str(round(orientation["yaw"], 0))
+            pitch = str(round(orientation["pitch"], 2))
+            roll = str(round(orientation["roll"], 2))
+            yaw = str(round(orientation["yaw"], 2))
             orientations = pitch + " " + roll + " " + yaw
             yield self.write_message(orientations)
             yield gen.sleep(0.01)
@@ -187,9 +187,9 @@ class AccelerationSocketHandler(tornado.websocket.WebSocketHandler):
         print("ACCELERATION ASYNC FUNC CALLED")
         while(self.sending):
             acceleration = self.sense.get_accelerometer_raw()
-            x = str(round(acceleration['x'], 1))
-            y = str(round(acceleration['y'], 1))
-            z = str(round(acceleration['z'], 1))
+            x = str(round(acceleration['x'], 2))
+            y = str(round(acceleration['y'], 2))
+            z = str(round(acceleration['z'], 2))
 
             accelerations = x + " " + y + " " + z
             yield self.write_message(accelerations)
@@ -259,7 +259,7 @@ class Application(tornado.web.Application):
             (r'/humidity', HumiditySocketHandler),
             (r'/orientation', OrientationSocketHandler),
             (r'/acceleration', AccelerationSocketHandler),
-            (r'/irtemp', IRTemperatureSocketHandler),
+            (r'/irtemp1', IRTemperatureSocketHandler),
             (r'/irtemp2', IR2TemperatureSocketHandler),
             (r'/gps', GPSSocketHandler)
         ]
@@ -283,7 +283,7 @@ if __name__ == '__main__':
     print("Server running...")
     ws_app = Application()
     server = tornado.httpserver.HTTPServer(ws_app)
-    server.listen(8080)
+    server.listen(8088)
     tornado.ioloop.IOLoop.instance().start()
 
 
