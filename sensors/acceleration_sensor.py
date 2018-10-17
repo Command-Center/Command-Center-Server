@@ -2,6 +2,7 @@ import simplejson as json
 import threading
 import queue
 import datetime
+import time
 from sense_hat import SenseHat
 from temperature_message import TemperatureMessage
 
@@ -14,7 +15,7 @@ class AccelerationSensor(threading.Thread):
 
         self.message_queue = message_queue
 
-        self.run()
+        
     def run(self):
         while self.sending:
             acceleration = self.sense.get_accelerometer_raw()
@@ -26,6 +27,6 @@ class AccelerationSensor(threading.Thread):
             
             message = {"timestamp" : dt, "x" : x, "y" : y, "z" : z}
             
-            json_object = json.dump(message.__dict__)
+            json_object = json.dumps(message.__dict__)
             self.message_queue.put(json_object)
             time.sleep(1)

@@ -15,7 +15,7 @@ class TemperatureSensor(threading.Thread):
 
         self.message_queue = message_queue
 
-        self.run()
+        
     def run(self):
         while self.sending:
             temp = round(self.sense.get_temperature(), 1)

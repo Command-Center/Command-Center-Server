@@ -2,6 +2,7 @@ import simplejson as json
 import threading
 import queue
 import datetime
+import time
 import gpsd
 import subprocess
 from temperature_message import TemperatureMessage
@@ -15,7 +16,7 @@ class GpsSensor(threading.Thread):
         self.message_queue = message_queue
         
 
-        self.run()
+        
     def run(self):
         while self.sending:
             try:
@@ -25,7 +26,7 @@ class GpsSensor(threading.Thread):
             
                 message = GpsMessage(dt, packet)
             
-                json_object = json.dump(message.__dict__)
+                json_object = json.dumps(message.__dict__)
                 self.message_queue.put(json_object)
                 
                 first_fix = True

@@ -2,7 +2,8 @@ import simplejson as json
 import threading
 import queue
 import datetime
-# from sense_hat import SenseHat
+import time
+from sense_hat import SenseHat
 from temperature_message import TemperatureMessage
 
 class OrientationSensor(threading.Thread):
@@ -14,9 +15,9 @@ class OrientationSensor(threading.Thread):
 
         self.message_queue = message_queue
 
-        self.run()
+        
     def run(self):
-        while sending:
+        while self.sending:
             orientation = self.sense.get_orientation()
             pitch = str(round(orientation["pitch"], 2))
             roll = str(round(orientation["roll"], 2))
@@ -26,6 +27,6 @@ class OrientationSensor(threading.Thread):
             
             message = {"timestamp" : dt, "pitch" : pitch, "roll" : roll, "yaw" : yaw}
             
-            json_object = json.dump(message.__dict__)
+            json_object = json.dumps(message.__dict__)
             self.message_queue.put(json_object)
             time.sleep(1)
