@@ -1,15 +1,18 @@
 import threading
 import time
+import datetime
+import simplejson as json
 from sense_hat import SenseHat
+from temperature_message import TemperatureMessage
 
 class HumiditySensor(threading.Thread):
     def __init__(self, message_queue):
         threading.Thread.__init__(self)
         self.sense = SenseHat()
         self.sense.clear()
-        self.sending = False
+        self.sending = True
         self.message_queue = message_queue
-    def run():
+    def run(self):
         while self.sending:
             humidity = round(self.sense.get_humidity(), 1)
             dt = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
