@@ -13,7 +13,7 @@ from sensors.humidity_sensor import HumiditySensor
 from sensors.pressure_sensor import PressureSensor
 from sensors.orientation_sensor import OrientationSensor
 from sensors.acceleration_sensor import AccelerationSensor
-
+from db_handler import DBHandler
 
 # from sense_hat import SenseHat
 
@@ -39,11 +39,14 @@ def main():
     temp_sensor.start()
     #ir_temp_sensor.start()
     #ir2_temp_sensor.start()
+    #gps_sensor.start()
     humidity_sensor.start()
     pressure_sensor.start()
     orientation_sensor.start()
     acceleration_sensor.start()
-
+    
+    ## Connect to databases
+    db_handler = DBHandler(local=True, cloud=True)
 
     
     ## Wait for connected to server
@@ -52,7 +55,7 @@ def main():
 
     print("Connected...")
     print("Start message sender")
-    sender = MessageSender(message_queue, mqtt_thread)
+    sender = MessageSender(message_queue, mqtt_thread, db_handler)
     sender.start()
 
     ## Keep from stopping program

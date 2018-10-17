@@ -26,6 +26,6 @@ class PressureSensor(threading.Thread):
         
             json_object = json.dumps(message.__dict__)
             topic = "pressure"
-            queue_object = [ topic, json_object ]
+            queue_object = [ topic, json_object, message.__dict__ ]
             self.message_queue.put(queue_object)
             time.sleep(5)

@@ -24,7 +24,9 @@ class TemperatureSensor(threading.Thread):
             message = TemperatureMessage(dt, temp)
             
             json_object = json.dumps(message.__dict__)
+            print("JSON: " + json_object)
             topic = "temperature"
-            queue_object = [ topic, json_object ]
+            queue_object = [ topic, json_object, message.__dict__ ]
+            print("length: " + str(len(queue_object)))
             self.message_queue.put(queue_object)
             time.sleep(5)

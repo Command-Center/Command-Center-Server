@@ -1,4 +1,4 @@
 class TemperatureMessage(object):
-    def __init__(self, timestamp, temperature):
+    def __init__(self, timestamp, value):
         self.timestamp = timestamp
-        self.temperature = temperature
+        self.value = value

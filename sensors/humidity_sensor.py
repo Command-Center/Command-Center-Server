@@ -22,10 +22,10 @@ class HumiditySensor(threading.Thread):
         ## Might be able to use the same class for everything.
         
 
-            message = TemperatureMessage(dt, humidity)
+            message = TemperatureMessage(dt, float(humidity))
         
             json_object = json.dumps(message.__dict__)
             topic = "humidity"
-            queue_object = [ topic, json_object ]
+            queue_object = [ topic, json_object, message.__dict__ ]
             self.message_queue.put(queue_object)
             time.sleep(5)
