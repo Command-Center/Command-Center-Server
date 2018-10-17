@@ -14,7 +14,7 @@ class IR2TemperatureSensor(threading.Thread):
 
         self.message_queue = message_queue
 
-        self.run()
+        
     def run(self):
         while sending:
             self.instrument = minimalmodbus.Instrument('/dev/ttyUSB-IR2', 1)

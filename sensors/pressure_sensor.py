@@ -8,7 +8,7 @@ class PressureSensor(threading.Thread):
         self.sense = SenseHat()
         self.sense.clear()
         self.sending = False
-        
+        self.message_queue = message_queue
     def run():
         while self.sending:
             pressure = round(self.sense.get_pressure(), 1)
