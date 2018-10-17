@@ -17,7 +17,7 @@ class GpsSensor(threading.Thread):
 
         self.run()
     def run(self):
-        while sending:
+        while self.sending:
             try:
                 packet = gpsd.get_current()
                 

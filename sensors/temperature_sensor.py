@@ -16,7 +16,7 @@ class TemperatureSensor(threading.Thread):
 
         self.run()
     def run(self):
-        while sending:
+        while self.sending:
             temp = round(self.sense.get_temperature(), 1)
             dt = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
             

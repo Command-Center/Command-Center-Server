@@ -16,7 +16,7 @@ class AccelerationSensor(threading.Thread):
 
         self.run()
     def run(self):
-        while sending:
+        while self.sending:
             acceleration = self.sense.get_accelerometer_raw()
             x = str(round(acceleration['x'], 2))
             y = str(round(acceleration['y'], 2))

@@ -1,5 +1,5 @@
 import threading
-# from sense_hat import SenseHat
+from sense_hat import SenseHat
 
 class PressureSensor(threading.Thread):
     def __init__(self, message_queue):
@@ -9,16 +9,17 @@ class PressureSensor(threading.Thread):
         self.sending = False
         self.run()
     def run():
-        pressure = round(self.sense.get_pressure(), 1)
-        dt = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+        while self.sending:
+            pressure = round(self.sense.get_pressure(), 1)
+            dt = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
         
         ## Consider changing name from temp to more general.
         ## We'll see what is needed.
         ## Might be able to use the same class for everything.
         
 
-        message = TemperatureMessage(dt, pressure)
+            message = TemperatureMessage(dt, pressure)
         
-        json_object = json.dump(message.__dict__)
-        self.message_queue.put(json_object)
-        time.sleep(5)
+            json_object = json.dump(message.__dict__)
+            self.message_queue.put(json_object)
+            time.sleep(5)
