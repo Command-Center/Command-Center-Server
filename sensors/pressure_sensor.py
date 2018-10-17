@@ -22,5 +22,7 @@ class PressureSensor(threading.Thread):
             message = TemperatureMessage(dt, pressure)
         
             json_object = json.dumps(message.__dict__)
-            self.message_queue.put(json_object)
+            topic = "pressure"
+            queue_object = [ topic, json_object ]
+            self.message_queue.put(queue_object)
             time.sleep(5)

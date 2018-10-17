@@ -25,7 +25,7 @@ class MqttConnector(threading.Thread):
         
     def subscribe(self):
         return None
-    def publish(self, message):
-        self.client.publish("test", message)
+    def publish(self, message, topic):
+        self.client.publish(topic, message)
     def isConnected(self):
         return self.connected

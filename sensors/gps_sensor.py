@@ -27,7 +27,9 @@ class GpsSensor(threading.Thread):
                 message = GpsMessage(dt, packet)
             
                 json_object = json.dumps(message.__dict__)
-                self.message_queue.put(json_object)
+                topic = "gps"
+                queue_object = [ topic, json_object ]
+                self.message_queue.put(queue_object)
                 
                 first_fix = True
             except Exception as e:

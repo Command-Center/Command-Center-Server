@@ -27,6 +27,10 @@ class AccelerationSensor(threading.Thread):
             
             message = {"timestamp" : dt, "x" : x, "y" : y, "z" : z}
             
+            
             json_object = json.dumps(message)
-            self.message_queue.put(json_object)
+            topic = "acceleration"
+            queue_object = [ topic, json_object ]
+            self.message_queue.put(queue_object)
+
             time.sleep(1)

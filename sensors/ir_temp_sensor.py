@@ -23,5 +23,7 @@ class IRTemperatureSensor(threading.Thread):
             message = TemperatureMessage(dt, temp)
             
             json_object = json.dump(message.__dict__)
-            self.message_queue.put(json_object)
+            topic = "irtemp"
+            queue_object = [ topic, json_object ]
+            self.message_queue.put(queue_object)
             time.sleep(5)
