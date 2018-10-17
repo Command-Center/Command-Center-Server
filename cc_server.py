@@ -53,7 +53,7 @@ def main():
     print("Connected...")
     print("Start message sender")
     sender = MessageSender(message_queue, mqtt_thread)
-    sender.run()
+    sender.start()
 
     ## Keep from stopping program
     while(running):

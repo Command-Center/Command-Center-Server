@@ -16,7 +16,6 @@ class MessageSender(threading.Thread):
         print("Attempting to start runner")
         
         while self.sending and self.mqtt_connector.connected:
-            print("Sender running")
             message = self.outgoing_message_queue.get()
             try:
                 self.mqtt_connector.publish(message)
