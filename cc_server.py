@@ -3,34 +3,56 @@ import asyncio
 import threading
 import time
 import queue
+from message_sender import MessageSender
+from mqtt_connector import MqttConnector
+from sensors.temperature_sensor import TemperatureSensor
+from sensors.ir_temp_sensor import IRTemperatureSensor
+from sensors.ir2_temp_sensor import IR2TemperatureSensor
+from sensors.gps_sensor import GpsSensor
+from sensors.humidity_sensor import HumiditySensor
+from sensors.pressure_sensor import PressureSensor
+from sensors.orientation_sensor import OrientationSensor
+from sensors.acceleration_sensor import AccelerationSensor
 
-class MQTT(threading.Thread):
-    mqtt_address = "40.113.99.5"
-    connected = False
-    def __init__(self, message_queue):
-        threading.Thread.__init__(self)
-        client = mqtt.Client("some_id...")
-    def run(self):
-        while not self.connected:
-            try:
-                client.connect(self.mqtt_address)
-                print("Connected")
-                self.connected = True
-            except Exception as e:
-                self.connected = False
-                print("Trying to reconnect")
-            time.sleep(1)
-    def subscribe(self):
-        return None
-    def publish(self):
-        return None
-    def isConnected(self):
-        return self.connected
+
+# from sense_hat import SenseHat
+
 def main():
-    messageQueue = queue.Queue
+    running = True
+    message_queue = queue.Queue()
+    
+    
     print("Creating mqtt class..")
-    mqtt_thread = MQTT(message_queue)
+    mqtt_thread = MqttConnector()
     mqtt_thread.start()
+
+    ## Start sensors
+    ## temp_sensor = TemperatureSensor(message_queue)
+    ir_temp_sensor = IRTemperatureSensor(message_queue)
+    ir2_temp_sensor = IR2TemperatureSensor(message_queue)
+    gps_sensor = GpsSensor(message_queue)
+    humidity_sensor = HumiditySensor(message_queue)
+    pressure_sensor = PressureSensor(message_queue)
+    orientation_sensor = OrientationSensor(message_queue)
+    acceleration_sensor = AccelerationSensor(message_queue)
+
+
+    
+    ## Wait for connected to server
+    while not mqtt_thread.connected:
+        continue
+
+    print("Connected...")
+    print("Start message sender")
+    sender = MessageSender(message_queue, mqtt_thread)
+    sender.run()
+
+    ## Keep from stopping program
+    while(running):
+        continue
+
+    
     print("Program end")
 if __name__ == "__main__":
     main()
+
