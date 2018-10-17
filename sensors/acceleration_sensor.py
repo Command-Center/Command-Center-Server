@@ -2,7 +2,7 @@ import simplejson as json
 import threading
 import queue
 import datetime
-# from sense_hat import SenseHat
+from sense_hat import SenseHat
 from temperature_message import TemperatureMessage
 
 class AccelerationSensor(threading.Thread):
