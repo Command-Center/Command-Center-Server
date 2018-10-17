@@ -1,8 +1,8 @@
 import paho.mqtt.client as mqtt
-import asyncio
 import threading
 import time
 import queue
+from sense_hat import SenseHat
 from message_sender import MessageSender
 from mqtt_connector import MqttConnector
 from sensors.temperature_sensor import TemperatureSensor
@@ -27,10 +27,10 @@ def main():
     mqtt_thread.start()
 
     ## Start sensors
-    ## temp_sensor = TemperatureSensor(message_queue)
-    ir_temp_sensor = IRTemperatureSensor(message_queue)
-    ir2_temp_sensor = IR2TemperatureSensor(message_queue)
-    gps_sensor = GpsSensor(message_queue)
+    temp_sensor = TemperatureSensor(message_queue)
+    #ir_temp_sensor = IRTemperatureSensor(message_queue)
+    #ir2_temp_sensor = IR2TemperatureSensor(message_queue)
+    #gps_sensor = GpsSensor(message_queue)
     humidity_sensor = HumiditySensor(message_queue)
     pressure_sensor = PressureSensor(message_queue)
     orientation_sensor = OrientationSensor(message_queue)
