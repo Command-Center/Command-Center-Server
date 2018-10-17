@@ -37,12 +37,12 @@ def main():
     acceleration_sensor = AccelerationSensor(message_queue)
 
     temp_sensor.start()
-    ir_temp_sensor.start()
-    ir2_temp_sensor.start()
+    #ir_temp_sensor.start()
+    #ir2_temp_sensor.start()
     humidity_sensor.start()
     pressure_sensor.start()
     orientation_sensor.start()
-    acceleration_sensor().start()
+    acceleration_sensor.start()
 
 
     

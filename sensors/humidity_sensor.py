@@ -8,7 +8,6 @@ class HumiditySensor(threading.Thread):
         self.sense = SenseHat()
         self.sense.clear()
         self.sending = False
-        self.run()
     def run():
         while self.sending:
             humidity = round(self.sense.get_humidity(), 1)

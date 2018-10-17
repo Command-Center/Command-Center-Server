@@ -27,6 +27,6 @@ class OrientationSensor(threading.Thread):
             
             message = {"timestamp" : dt, "pitch" : pitch, "roll" : roll, "yaw" : yaw}
             
-            json_object = json.dumps(message.__dict__)
+            json_object = json.dumps(message)
             self.message_queue.put(json_object)
             time.sleep(1)
