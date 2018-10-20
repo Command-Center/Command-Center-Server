@@ -6,6 +6,7 @@ import datetime
 import queue
 import simplejson as json
 from micropyGPS import MicropyGPS
+from seanav_message import SeanavMessage
 
 class UDPReceiver(threading.Thread):
     def __init__(self, ip, port, queue, sensor):
@@ -30,8 +31,14 @@ class UDPReceiver(threading.Thread):
                 self.queue.put(queue_object)
                 time.sleep(0.3)
             if self.sensor == "SEANAV":
-                print(data)
-                self.read_NMEA_from_seanav(data)
+                packet = self.read_NMEA_from_seanav(data)
+                dt = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+                message = SeanavMessage(dt, packet)
+                json_object = json.dumps(message.__dict__)
+                topic = "gps_seanav"
+                queue_object = [ topic, json_object, message.__dict__ ]
+                self.queue.put(queue_object)
+                time.sleep(0.5)
     def read_NMEA_prop_format(self, data):
         arr = data.decode('utf-8').split(',')
         roll = arr[3]
@@ -41,13 +48,15 @@ class UDPReceiver(threading.Thread):
         my_gps = MicropyGPS()
         for letter in data.decode():
             my_gps.update(letter)
-        print("lat: " + str(my_gps.latitude))
-        print("lon: " + str(my_gps.longitude))
-        print("course: " + str(my_gps.course))
-        print("altitude: " + str(my_gps.altitude))
-        print("speed: " + str(my_gps.speed))
-        print("satellites in use: " + str(my_gps.satellites_in_use))
-        print("fix type: " + str(my_gps.fix_type))
+        return my_gps
+
+        #print("lat: " + str(my_gps.latitude))
+        #print("lon: " + str(my_gps.longitude))
+        #print("course: " + str(my_gps.course))
+        #print("altitude: " + str(my_gps.altitude))
+        #print("speed: " + str(my_gps.speed))
+        #print("satellites in use: " + str(my_gps.satellites_in_use))
+        #print("fix type: " + str(my_gps.fix_type))
         ## 1: no fix, 2: 2d fix, 3: 3d fix
 
 
