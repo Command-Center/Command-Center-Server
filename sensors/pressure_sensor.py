@@ -22,7 +22,7 @@ class PressureSensor(threading.Thread):
         ## Might be able to use the same class for everything.
         
 
-            message = TemperatureMessage(dt, pressure)
+            message = TemperatureMessage(dt, float(pressure))
         
             json_object = json.dumps(message.__dict__)
             topic = "pressure"
