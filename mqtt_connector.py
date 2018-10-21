@@ -3,9 +3,10 @@ import paho.mqtt.client as mqtt
 import threading
 import time
 import queue
+import config as cfg
 
 class MqttConnector(threading.Thread):
-    mqtt_address = "40.113.99.5" ##Frost server
+    mqtt_address = cfg.ip_mqtt ##Frost server
     
     connected = False
     def __init__(self):
@@ -21,7 +22,7 @@ class MqttConnector(threading.Thread):
                 self.connected = False
                 print("Trying to reconnect")
                 print(e)
-            time.sleep(1)
+            time.sleep(cfg.reconnect_interval_mqtt)
         
     def subscribe(self):
         return None

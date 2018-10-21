@@ -15,13 +15,11 @@ from sensors.orientation_sensor import OrientationSensor
 from sensors.acceleration_sensor import AccelerationSensor
 from db_handler import DBHandler
 from udp_receiver import UDPReceiver
+import config as cfg
 
 # from sense_hat import SenseHat
 
 def main():
-    ip = "192.168.1.21"
-    port_imu =  7551
-    port_seanav = 31036
     running = True
     message_queue = queue.Queue()
     
@@ -39,8 +37,8 @@ def main():
     pressure_sensor = PressureSensor(message_queue)
     orientation_sensor = OrientationSensor(message_queue)
     acceleration_sensor = AccelerationSensor(message_queue)
-    imu_sensor = UDPReceiver(ip, port_imu, message_queue, "IMU")
-    seanav_sensor = UDPReceiver(ip, port_seanav, message_queue, "SEANAV")
+    imu_sensor = UDPReceiver(cfg.ip_imu, cfg.port_imu, message_queue, "IMU")
+    seanav_sensor = UDPReceiver(cfg.ip_seanav, cfg.port_seanav, message_queue, "SEANAV")
 
 
     temp_sensor.start()

@@ -5,6 +5,7 @@ import queue
 import datetime
 import time
 from temperature_message import TemperatureMessage
+import config as cfg
 
 class TemperatureSensor(threading.Thread):
     def __init__(self, message_queue):
@@ -28,4 +29,4 @@ class TemperatureSensor(threading.Thread):
             queue_object = [ topic, json_object, message.__dict__ ]
             print("length: " + str(len(queue_object)))
             self.message_queue.put(queue_object)
-            time.sleep(5)
+            time.sleep(cfg.temperature_freq)

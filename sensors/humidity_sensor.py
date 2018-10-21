@@ -4,6 +4,7 @@ import datetime
 import simplejson as json
 from sense_hat import SenseHat
 from temperature_message import TemperatureMessage
+import config as cfg
 
 class HumiditySensor(threading.Thread):
     def __init__(self, message_queue):
@@ -28,4 +29,4 @@ class HumiditySensor(threading.Thread):
             topic = "humidity"
             queue_object = [ topic, json_object, message.__dict__ ]
             self.message_queue.put(queue_object)
-            time.sleep(5)
+            time.sleep(cfg.humidity_freq)

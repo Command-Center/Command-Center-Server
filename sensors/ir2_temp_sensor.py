@@ -8,7 +8,7 @@ from temperature_message import TemperatureMessage
 class IR2TemperatureSensor(threading.Thread):
     def __init__(self, message_queue):
         threading.Thread.__init__(self)
-        self.instrument = minimalmodbus.Instrument('/dev/ttyUSB-IR1', 1)
+        self.instrument = minimalmodbus.Instrument('/dev/ttyUSB-IR2', 1)
         self.instrument.serial.baudrate = 9600
         self.sending = True
 
@@ -28,4 +28,4 @@ class IR2TemperatureSensor(threading.Thread):
             topic = "ir2temp"
             queue_object = [ topic, json_object ]
             self.message_queue.put(queue_object)
-            time.sleep(5)
+            time.sleep(cfg.ir2_temperature_freq)

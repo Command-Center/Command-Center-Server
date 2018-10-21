@@ -6,6 +6,7 @@ import time
 import gpsd
 import subprocess
 from temperature_message import TemperatureMessage
+import config as cfg
 
 class GpsSensor(threading.Thread):
     def __init__(self, message_queue):
@@ -38,9 +39,9 @@ class GpsSensor(threading.Thread):
             ## Can have different freqs for connected/not_connected
 
             if first_fix:
-                time.sleep(1)
+                time.sleep(cfg.gps_freq)
             else:
-                time.sleep(1)
+                time.sleep(cfg.gps_freq_if_no_fix)
     def setup_gps():
         killall = "sudo killall gpsd"
         stop = "sudo systemctl stop gpsd.socket"

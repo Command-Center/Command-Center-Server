@@ -1,6 +1,8 @@
 from influxdb import InfluxDBClient
 import simplejson as json
 from point import Point
+import config as cfg
+
 class DBHandler():
     def __init__(self, local=True, cloud=True):
         self.local = local
@@ -10,7 +12,7 @@ class DBHandler():
             self.client_local = InfluxDBClient(database='OLCC')
             self.clients.append(self.client_local)
         if cloud:
-            self.client_cloud = InfluxDBClient(host='40.113.99.5', port=8086, database='OLCC')
+            self.client_cloud = InfluxDBClient(host=cfg.ip_influxdb_cloud, port=cfg.port_influxdb, database='OLCC')
             self.clients.append(self.client_cloud)
     def add_to_db(self, message, topic):
         for c in self.clients:

@@ -5,6 +5,7 @@ import datetime
 import time
 from sense_hat import SenseHat
 from temperature_message import TemperatureMessage
+import config as cfg
 
 class OrientationSensor(threading.Thread):
     def __init__(self, message_queue):
@@ -31,4 +32,4 @@ class OrientationSensor(threading.Thread):
             topic = "orientation"
             queue_object = [ topic, json_object, message ]
             self.message_queue.put(queue_object)
-            time.sleep(1)
+            time.sleep(cfg.orientation_freq)

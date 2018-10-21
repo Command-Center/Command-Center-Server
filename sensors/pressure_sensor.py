@@ -4,6 +4,7 @@ import datetime
 import simplejson as json
 from sense_hat import SenseHat
 from temperature_message import TemperatureMessage
+import config as cfg
 
 class PressureSensor(threading.Thread):
     def __init__(self, message_queue):
@@ -28,4 +29,4 @@ class PressureSensor(threading.Thread):
             topic = "pressure"
             queue_object = [ topic, json_object, message.__dict__ ]
             self.message_queue.put(queue_object)
-            time.sleep(5)
+            time.sleep(cfg.pressure_freq)

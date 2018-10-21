@@ -4,6 +4,7 @@ import queue
 import datetime
 import minimalmodbus
 from temperature_message import TemperatureMessage
+import config as cfg
 
 class IRTemperatureSensor(threading.Thread):
     def __init__(self, message_queue):
@@ -26,4 +27,4 @@ class IRTemperatureSensor(threading.Thread):
             topic = "irtemp"
             queue_object = [ topic, json_object ]
             self.message_queue.put(queue_object)
-            time.sleep(5)
+            time.sleep(cfg.ir1_temperature_freq)
