@@ -7,6 +7,8 @@ import queue
 import simplejson as json
 from micropyGPS import MicropyGPS
 from seanav_message import SeanavMessage
+from IMUMessage import IMUMessage
+import config as cfg
 
 class UDPReceiver(threading.Thread):
     def __init__(self, ip, port, queue, sensor):
@@ -20,16 +22,15 @@ class UDPReceiver(threading.Thread):
     def run(self):
         while 1:
             ## How to decide size?
-            data, addr = self.s.recvfrom(100)
+            data, addr = self.s.recvfrom(256)
             if self.sensor == "IMU":
-                res = self.read_NMEA_prop_format(data)
-                dt = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-                message = {"timestamp": dt, "pitch" : res[1], "roll" : res[0]}
-                json_object = json.dumps(message)
+                print(data)
+                message = self.read_NMEA_prop_format(data)
+                json_object = json.dumps(message.__dict__)
                 topic = "orientation_imu"
-                queue_object = [ topic, json_object, message ]
+                queue_object = [ topic, json_object, message.__dict__ ]
                 self.queue.put(queue_object)
-                time.sleep(0.3)
+                time.sleep(cfg.imu_freq)
             if self.sensor == "SEANAV":
                 packet = self.read_NMEA_from_seanav(data)
                 dt = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
@@ -38,12 +39,13 @@ class UDPReceiver(threading.Thread):
                 topic = "gps_seanav"
                 queue_object = [ topic, json_object, message.__dict__ ]
                 self.queue.put(queue_object)
-                time.sleep(0.5)
+                time.sleep(cfg.seanav_freq)
     def read_NMEA_prop_format(self, data):
         arr = data.decode('utf-8').split(',')
-        roll = arr[3]
-        pitch = arr[4]
-        return (roll, pitch)
+        
+        dt = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+        message = IMUMessage(dt, arr[3], arr[4], arr[5], arr[6], arr[7], arr[8], arr[9], arr[10], arr[11], arr[12], arr[13], arr[14], arr[15])
+        return message
     def read_NMEA_from_seanav(self, data):
         my_gps = MicropyGPS()
         for letter in data.decode():

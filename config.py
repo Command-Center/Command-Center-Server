@@ -15,9 +15,9 @@ imu_freq = 0.3
 
 ## Adresses
 ip_seanav = "192.168.1.21"
-port_seanav = 7551
+port_imu = 7551
 ip_imu = ip_seanav
-port_imu = 31036
+port_seanav = 31036
 ip_influxdb_cloud = '40.113.99.5'
 port_influxdb = 8086
 ip_mqtt = ip_influxdb_cloud

@@ -19,7 +19,7 @@ class DBHandler():
             try:
                 c.write_points(self.create_json_point(message, topic))
             except Exception as e:
-                print("Write error: " + str(e))
+                print("Write to db error: " + str(e))
     def create_json_point(self, message, topic):
         point = Point(topic, message)
         point_json = [point.__dict__]
