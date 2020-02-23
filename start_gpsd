@@ -1,0 +1,2 @@
+#!/bin/bash
+sudo gpsd /dev/ttyUSB-GPS -F /var/run/gpsd.sock
